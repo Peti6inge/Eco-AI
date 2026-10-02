@@ -1,0 +1,145 @@
+:root {
+  color-scheme: dark;
+  --bg: #0e1116;
+  --panel: #171b22;
+  --text: #e8eaed;
+  --muted: #9aa3af;
+  --accent: #7ee0c2;
+  --danger: #ff8a80;
+  --line: #2a3140;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+h1 {
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.25rem;
+}
+
+.lede,
+.hint,
+.coverage,
+.quartiles,
+#save-status {
+  color: var(--muted);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: end;
+}
+
+.params {
+  display: block;
+}
+
+.params h3 {
+  font-size: 0.95rem;
+  margin: 1rem 0 0.5rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+input,
+button,
+textarea {
+  font: inherit;
+  background: #0e1116;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.4rem 0.55rem;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button.active {
+  background: #14332c;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toggle {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem;
+}
+
+.picks label {
+  flex-direction: row;
+  align-items: center;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.omitted {
+  color: var(--muted);
+  padding-left: 1.2rem;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
+}
+
+.card .span {
+  grid-column: 1 / -1;
+}
+
+#chart {
+  height: 420px;
+  margin-top: 0.5rem;
+}
+
+summary {
+  cursor: pointer;
+}

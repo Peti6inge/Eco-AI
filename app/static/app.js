@@ -1,0 +1,300 @@
+const state = {
+  metric: "co2",
+  settings: null,
+  file: null,
+  dateBounds: { min: null, max: null },
+};
+
+const $ = (id) => document.getElementById(id);
+
+function showError(msg) {
+  const el = $("error");
+  if (!msg) {
+    el.hidden = true;
+    el.textContent = "";
+    return;
+  }
+  el.hidden = false;
+  el.textContent = msg;
+}
+
+async function loadSettings() {
+  const res = await fetch("/api/settings");
+  state.settings = await res.json();
+  renderModelPicks();
+  renderSettingsEditor();
+}
+
+function renderModelPicks() {
+  const box = $("model-picks");
+  box.innerHTML = "";
+  if (!state.settings) return;
+  for (const model of state.settings.models) {
+    const label = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = true;
+    cb.value = model.id;
+    cb.addEventListener("change", () => {
+      if (state.file) analyze();
+    });
+    label.append(cb, document.createTextNode(" " + model.id));
+    box.appendChild(label);
+  }
+}
+
+function selectedModelIds() {
+  return [...document.querySelectorAll("#model-picks input:checked")].map((el) => el.value);
+}
+
+function providerCard(p, index) {
+  return card(
+    [
+      field("id", p.id, index, "providers"),
+      field("name", p.name, index, "providers"),
+      field("mu_L_per_kWh", p.mu_L_per_kWh, index, "providers", "number"),
+      field("sigma_L_per_kWh", p.sigma_L_per_kWh, index, "providers", "number"),
+      field("mu_kg_per_kWh", p.mu_kg_per_kWh, index, "providers", "number"),
+      field("sigma_kg_per_kWh", p.sigma_kg_per_kWh, index, "providers", "number"),
+    ],
+    () => {
+      state.settings.providers.splice(index, 1);
+      renderSettingsEditor();
+    }
+  );
+}
+
+function modelCard(m, index) {
+  return card(
+    [
+      field("id", m.id, index, "models"),
+      field("provider_id", m.provider_id, index, "models"),
+      field("match_prefixes", (m.match_prefixes || []).join(", "), index, "models"),
+      field("input", m.input, index, "models", "number"),
+      field("output", m.output, index, "models", "number"),
+      field("cache_read", m.cache_read, index, "models", "number"),
+      field("cache_write", m.cache_write, index, "models", "number"),
+      field("mu_kWh_per_usd", m.mu_kWh_per_usd, index, "models", "number"),
+      field("sigma_kWh_per_usd", m.sigma_kWh_per_usd, index, "models", "number"),
+    ],
+    () => {
+      state.settings.models.splice(index, 1);
+      renderSettingsEditor();
+      renderModelPicks();
+    }
+  );
+}
+
+function field(name, value, index, kind, type = "text") {
+  const wrap = document.createElement("label");
+  wrap.textContent = name;
+  const input = document.createElement("input");
+  input.type = type === "number" ? "number" : "text";
+  if (type === "number") {
+    input.step = "any";
+  }
+  input.value = value ?? "";
+  input.dataset.kind = kind;
+  input.dataset.index = String(index);
+  input.dataset.field = name;
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function card(fields, onDelete) {
+  const div = document.createElement("div");
+  div.className = "card";
+  for (const f of fields) div.appendChild(f);
+  const del = document.createElement("button");
+  del.type = "button";
+  del.textContent = "Supprimer";
+  del.className = "span";
+  del.addEventListener("click", onDelete);
+  div.appendChild(del);
+  return div;
+}
+
+function readEditor() {
+  const settings = { providers: [], models: [] };
+  for (const input of document.querySelectorAll("#providers input, #models input")) {
+    const kind = input.dataset.kind;
+    const i = Number(input.dataset.index);
+    const fieldName = input.dataset.field;
+    if (!settings[kind][i]) settings[kind][i] = {};
+    let value = input.value;
+    if (fieldName === "match_prefixes") {
+      value = value.split(",").map((s) => s.trim()).filter(Boolean);
+    } else if (input.type === "number") {
+      value = value === "" ? 0 : Number(value);
+    }
+    settings[kind][i][fieldName] = value;
+  }
+  settings.providers = settings.providers.filter(Boolean);
+  settings.models = settings.models.filter(Boolean);
+  return settings;
+}
+
+function renderSettingsEditor() {
+  const pBox = $("providers");
+  const mBox = $("models");
+  pBox.innerHTML = "";
+  mBox.innerHTML = "";
+  state.settings.providers.forEach((p, i) => pBox.appendChild(providerCard(p, i)));
+  state.settings.models.forEach((m, i) => mBox.appendChild(modelCard(m, i)));
+}
+
+async function saveSettings() {
+  const payload = readEditor();
+  const res = await fetch("/api/settings", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    $("save-status").textContent = body.detail ? JSON.stringify(body.detail) : "Erreur";
+    return;
+  }
+  state.settings = body;
+  $("save-status").textContent = "Enregistré.";
+  renderModelPicks();
+  renderSettingsEditor();
+}
+
+async function analyze() {
+  if (!state.file) return;
+  showError("");
+  const fd = new FormData();
+  fd.append("file", state.file);
+  fd.append("metric", state.metric);
+  const from = $("date-from").value;
+  const to = $("date-to").value;
+  if (from) fd.append("date_from", from);
+  if (to) fd.append("date_to", to);
+  fd.append("model_ids", selectedModelIds().join(","));
+  const res = await fetch("/api/analyze", { method: "POST", body: fd });
+  const data = await res.json();
+  if (!res.ok) {
+    showError(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail));
+    Plotly.purge("chart");
+    $("coverage").textContent = "";
+    $("omitted").innerHTML = "";
+    $("quartiles").textContent = "";
+    return;
+  }
+  if (data.date_min && !$("date-from").value) $("date-from").value = data.date_min;
+  if (data.date_max && !$("date-to").value) $("date-to").value = data.date_max;
+  const pct = data.coverage_pct.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+  $("coverage").textContent = `Tokens comptabilisés dans l'analyse : ${pct}%`;
+  const ul = $("omitted");
+  ul.innerHTML = "";
+  for (const item of data.omitted) {
+    const li = document.createElement("li");
+    li.textContent = `${item.model} — ${item.tokens.toLocaleString("fr-FR")} tokens (sans paramètre)`;
+    ul.appendChild(li);
+  }
+  const q = data.quartiles;
+  const fmt = (x) => x.toLocaleString("fr-FR", { maximumFractionDigits: 4 });
+  $("quartiles").textContent =
+    `Q1 ${fmt(q.q1)} · médiane ${fmt(q.median)} · Q3 ${fmt(q.q3)} ${data.unit}` +
+    ` · coût configuré ${fmt(data.total_cost_usd)} $ · ${data.n_draws} tirages`;
+  drawChart(data);
+}
+
+function drawChart(data) {
+  const cdf = {
+    x: data.cdf.x,
+    y: data.cdf.y,
+    name: "CDF empirique",
+    mode: "lines",
+    line: { color: "#7ee0c2", width: 2 },
+  };
+  const gauss = {
+    x: data.gaussian_overlay.x,
+    y: data.gaussian_overlay.y,
+    name: "Gaussienne (mêmes moments)",
+    mode: "lines",
+    line: { color: "#9aa3af", width: 1, dash: "dot" },
+  };
+  const shapes = ["q1", "median", "q3"].map((k, i) => ({
+    type: "line",
+    x0: data.quartiles[k],
+    x1: data.quartiles[k],
+    y0: 0,
+    y1: 1,
+    line: { color: ["#5b8def", "#e8eaed", "#5b8def"][i], width: i === 1 ? 1.5 : 1, dash: i === 1 ? "solid" : "dash" },
+  }));
+  Plotly.newPlot(
+    "chart",
+    [cdf, gauss],
+    {
+      paper_bgcolor: "#0e1116",
+      plot_bgcolor: "#0e1116",
+      font: { color: "#e8eaed" },
+      margin: { t: 24, r: 16, b: 48, l: 48 },
+      xaxis: { title: data.unit, gridcolor: "#2a3140" },
+      yaxis: { title: "P(F ≤ x)", range: [0, 1], gridcolor: "#2a3140" },
+      legend: { orientation: "h" },
+      shapes,
+      annotations: [
+        { x: data.quartiles.q1, y: 1, text: "Q1", showarrow: false, yanchor: "bottom", font: { size: 11 } },
+        { x: data.quartiles.median, y: 1, text: "médiane", showarrow: false, yanchor: "bottom", font: { size: 11 } },
+        { x: data.quartiles.q3, y: 1, text: "Q3", showarrow: false, yanchor: "bottom", font: { size: 11 } },
+      ],
+    },
+    { displayModeBar: false, responsive: true }
+  );
+}
+
+$("csv").addEventListener("change", (ev) => {
+  state.file = ev.target.files[0] || null;
+  $("run").disabled = !state.file;
+  $("date-from").value = "";
+  $("date-to").value = "";
+  if (state.file) analyze();
+});
+
+$("run").addEventListener("click", analyze);
+$("date-from").addEventListener("change", () => state.file && analyze());
+$("date-to").addEventListener("change", () => state.file && analyze());
+
+for (const btn of document.querySelectorAll(".toggle button")) {
+  btn.addEventListener("click", () => {
+    state.metric = btn.dataset.metric;
+    document.querySelectorAll(".toggle button").forEach((b) => b.classList.toggle("active", b === btn));
+    if (state.file) analyze();
+  });
+}
+
+$("add-provider").addEventListener("click", () => {
+  state.settings.providers.push({
+    id: "nouveau",
+    name: "Nouveau",
+    mu_L_per_kWh: 1.8,
+    sigma_L_per_kWh: 1,
+    mu_kg_per_kWh: 0.3,
+    sigma_kg_per_kWh: 0.15,
+  });
+  renderSettingsEditor();
+});
+
+$("add-model").addEventListener("click", () => {
+  const pid = state.settings.providers[0]?.id || "spacexai";
+  state.settings.models.push({
+    id: "nouveau-modele",
+    provider_id: pid,
+    match_prefixes: ["nouveau-modele"],
+    input: 1e-6,
+    output: 3e-6,
+    cache_read: 1e-7,
+    cache_write: 1.25e-6,
+    mu_kWh_per_usd: 0.12,
+    sigma_kWh_per_usd: 0.08,
+  });
+  renderSettingsEditor();
+  renderModelPicks();
+});
+
+$("save-settings").addEventListener("click", saveSettings);
+
+loadSettings().catch((err) => showError(String(err)));
