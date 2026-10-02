@@ -59,7 +59,8 @@ def test_coverage_and_omitted_independent_of_graph_toggles():
     assert full.coverage_pct == subset.coverage_pct
     assert full.omitted == subset.omitted
     assert full.coverage_pct < 80
-    assert any(item["model"].startswith("gemini") for item in full.omitted)
+    assert any(item["model"].startswith("gpt-5.6") for item in full.omitted)
+    assert not any(item["model"].startswith("gemini") for item in full.omitted)
 
 
 def test_period_filter_shrinks_rows():
