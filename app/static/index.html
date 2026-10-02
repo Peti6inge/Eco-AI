@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Eco-AI</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Eco-AI</h1>
+        <p class="lede">Empreinte probabiliste d’un export Cursor (CO₂ ou eau).</p>
+      </header>
+
+      <section class="panel">
+        <label class="file">
+          CSV Cursor
+          <input id="csv" type="file" accept=".csv,text/csv" />
+        </label>
+        <div class="toggle" role="radiogroup" aria-label="Grandeur">
+          <button type="button" id="metric-co2" class="active" data-metric="co2">CO₂</button>
+          <button type="button" id="metric-water" data-metric="water">Eau</button>
+        </div>
+        <label>
+          Du
+          <input id="date-from" type="date" />
+        </label>
+        <label>
+          Au
+          <input id="date-to" type="date" />
+        </label>
+        <button type="button" id="run" disabled>Analyser</button>
+      </section>
+
+      <section class="panel">
+        <h2>Modèles (graphe)</h2>
+        <div id="model-picks" class="picks"></div>
+      </section>
+
+      <p id="error" class="error" hidden></p>
+      <p id="coverage" class="coverage"></p>
+      <ul id="omitted" class="omitted"></ul>
+      <p id="quartiles" class="quartiles"></p>
+      <div id="chart"></div>
+
+      <details class="panel params">
+        <summary>Paramètres</summary>
+        <p class="hint">
+          Priors documentés dans <code>defaults/SOURCES.md</code>. Enregistrement dans
+          <code>data/settings.json</code>.
+        </p>
+        <h3>Fournisseurs</h3>
+        <div id="providers"></div>
+        <button type="button" id="add-provider">Ajouter un fournisseur</button>
+        <h3>Modèles</h3>
+        <div id="models"></div>
+        <button type="button" id="add-model">Ajouter un modèle</button>
+        <p>
+          <button type="button" id="save-settings">Enregistrer</button>
+          <span id="save-status"></span>
+        </p>
+      </details>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
