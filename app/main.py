@@ -96,7 +96,13 @@ async def analyze(
 def _parse_iso_date(value: str | None) -> date | None:
     if not value or not value.strip():
         return None
+    text = value.strip()
+    if len(text) != 10:
+        raise HTTPException(
+            status_code=400,
+            detail="Date invalide : format AAAA-MM-JJ exigé.",
+        )
     try:
-        return date.fromisoformat(value.strip()[:10])
+        return date.fromisoformat(text)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=f"Date invalide : {value}") from exc

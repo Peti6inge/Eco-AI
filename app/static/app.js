@@ -161,14 +161,25 @@ async function saveSettings() {
   renderSettingsEditor();
 }
 
+function isoDateValue(id) {
+  const value = $(id).value.trim();
+  if (!value) return "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  return value;
+}
+
 async function analyze() {
   if (!state.file) return;
   showError("");
+  const from = isoDateValue("date-from");
+  const to = isoDateValue("date-to");
+  if (from === null || to === null) {
+    showError("Date invalide : utilisez le sélecteur (AAAA-MM-JJ).");
+    return;
+  }
   const fd = new FormData();
   fd.append("file", state.file);
   fd.append("metric", state.metric);
-  const from = $("date-from").value;
-  const to = $("date-to").value;
   if (from) fd.append("date_from", from);
   if (to) fd.append("date_to", to);
   fd.append("model_ids", selectedModelIds().join(","));
