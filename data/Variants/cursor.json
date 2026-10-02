@@ -1,0 +1,247 @@
+{
+  "providers": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "mu_L_per_kWh": 1.8,
+      "sigma_L_per_kWh": 1.0,
+      "mu_kg_per_kWh": 0.3,
+      "sigma_kg_per_kWh": 0.15
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "mu_L_per_kWh": 2.0,
+      "sigma_L_per_kWh": 1.1,
+      "mu_kg_per_kWh": 0.35,
+      "sigma_kg_per_kWh": 0.18
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "mu_L_per_kWh": 1.5,
+      "sigma_L_per_kWh": 0.9,
+      "mu_kg_per_kWh": 0.15,
+      "sigma_kg_per_kWh": 0.1
+    },
+    {
+      "id": "spacexai",
+      "name": "SpaceXAI",
+      "mu_L_per_kWh": 2.2,
+      "sigma_L_per_kWh": 1.2,
+      "mu_kg_per_kWh": 0.38,
+      "sigma_kg_per_kWh": 0.2
+    }
+  ],
+  "models": [
+    {
+      "id": "auto",
+      "provider_id": "spacexai",
+      "match_prefixes": ["auto"],
+      "input": 5e-6,
+      "output": 25e-6,
+      "cache_read": 5e-7,
+      "cache_write": 6.25e-6,
+      "mu_kWh_per_usd": 0.14,
+      "sigma_kWh_per_usd": 0.12
+    },
+    {
+      "id": "cursor-grok-4.6",
+      "provider_id": "spacexai",
+      "match_prefixes": ["cursor-grok-4.6"],
+      "input": 3e-6,
+      "output": 15e-6,
+      "cache_read": 3e-7,
+      "cache_write": 3.75e-6,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "grok-4.7",
+      "provider_id": "spacexai",
+      "match_prefixes": ["grok-4.7"],
+      "input": 3e-6,
+      "output": 15e-6,
+      "cache_read": 3e-7,
+      "cache_write": 3.75e-6,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "composer-2.5",
+      "provider_id": "spacexai",
+      "match_prefixes": ["composer-2.5"],
+      "input": 1.25e-6,
+      "output": 1e-5,
+      "cache_read": 1.25e-7,
+      "cache_write": 1.5625e-6,
+      "mu_kWh_per_usd": 0.1,
+      "sigma_kWh_per_usd": 0.07
+    },
+    {
+      "id": "composer-2.5-fast",
+      "provider_id": "spacexai",
+      "match_prefixes": ["composer-2.5-fast"],
+      "input": 4e-7,
+      "output": 1.6e-6,
+      "cache_read": 4e-8,
+      "cache_write": 5e-7,
+      "mu_kWh_per_usd": 0.08,
+      "sigma_kWh_per_usd": 0.06
+    },
+    {
+      "id": "claude-opus-5",
+      "provider_id": "anthropic",
+      "match_prefixes": ["claude-opus-5"],
+      "input": 1.5e-5,
+      "output": 7.5e-5,
+      "cache_read": 1.5e-6,
+      "cache_write": 1.875e-5,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "claude-4.6-sonnet",
+      "provider_id": "anthropic",
+      "match_prefixes": ["claude-4.6-sonnet", "claude-sonnet-4.6"],
+      "input": 3e-6,
+      "output": 1.5e-5,
+      "cache_read": 3e-7,
+      "cache_write": 3.75e-6,
+      "mu_kWh_per_usd": 0.11,
+      "sigma_kWh_per_usd": 0.07
+    },
+    {
+      "id": "claude-4.6-opus",
+      "provider_id": "anthropic",
+      "match_prefixes": ["claude-4.6-opus", "claude-opus-4.6"],
+      "input": 1.5e-5,
+      "output": 7.5e-5,
+      "cache_read": 1.5e-6,
+      "cache_write": 1.875e-5,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "gemini-3.1-pro",
+      "provider_id": "google",
+      "match_prefixes": ["gemini-3.1-pro"],
+      "input": 2e-6,
+      "output": 1.2e-5,
+      "cache_read": 2e-7,
+      "cache_write": 2.5e-6,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "claude-4.5-haiku",
+      "provider_id": "anthropic",
+      "match_prefixes": ["claude-4.5-haiku"],
+      "input": 1e-6,
+      "output": 5e-6,
+      "cache_read": 1e-7,
+      "cache_write": 1.25e-6,
+      "mu_kWh_per_usd": 0.09,
+      "sigma_kWh_per_usd": 0.06
+    },
+    {
+      "id": "claude-4.5-haiku-thinking",
+      "provider_id": "anthropic",
+      "match_prefixes": ["claude-4.5-haiku-thinking"],
+      "input": 1e-6,
+      "output": 5e-6,
+      "cache_read": 1e-7,
+      "cache_write": 1.25e-6,
+      "mu_kWh_per_usd": 0.1,
+      "sigma_kWh_per_usd": 0.09
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "provider_id": "google",
+      "match_prefixes": ["gemini-3.8-flash"],
+      "input": 7.5e-7,
+      "output": 3.75e-6,
+      "cache_read": 7.5e-8,
+      "cache_write": 9.375e-7,
+      "mu_kWh_per_usd": 0.1,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "gemini-3-flash",
+      "provider_id": "google",
+      "match_prefixes": ["gemini-3-flash"],
+      "input": 5e-7,
+      "output": 3e-6,
+      "cache_read": 5e-8,
+      "cache_write": 6.25e-7,
+      "mu_kWh_per_usd": 0.1,
+      "sigma_kWh_per_usd": 0.07
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "provider_id": "google",
+      "match_prefixes": ["gemini-3-flash-preview"],
+      "input": 5e-7,
+      "output": 3e-6,
+      "cache_read": 5e-8,
+      "cache_write": 6.25e-7,
+      "mu_kWh_per_usd": 0.1,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "gpt-5.6-luna-high",
+      "provider_id": "openai",
+      "match_prefixes": ["gpt-5.6-luna-high"],
+      "input": 2e-7,
+      "output": 1.2e-6,
+      "cache_read": 2e-8,
+      "cache_write": 2.5e-7,
+      "mu_kWh_per_usd": 0.11,
+      "sigma_kWh_per_usd": 0.09
+    },
+    {
+      "id": "gpt-5.6-luna-none",
+      "provider_id": "openai",
+      "match_prefixes": ["gpt-5.6-luna-none"],
+      "input": 2e-7,
+      "output": 1.2e-6,
+      "cache_read": 2e-8,
+      "cache_write": 2.5e-7,
+      "mu_kWh_per_usd": 0.07,
+      "sigma_kWh_per_usd": 0.05
+    },
+    {
+      "id": "gpt-5.6-sol-high",
+      "provider_id": "openai",
+      "match_prefixes": ["gpt-5.6-sol-high"],
+      "input": 4e-6,
+      "output": 2e-5,
+      "cache_read": 4e-7,
+      "cache_write": 5e-6,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.08
+    },
+    {
+      "id": "grok-bot-default",
+      "provider_id": "spacexai",
+      "match_prefixes": ["grok-bot-default"],
+      "input": 5e-6,
+      "output": 2.5e-5,
+      "cache_read": 5e-7,
+      "cache_write": 6.25e-6,
+      "mu_kWh_per_usd": 0.14,
+      "sigma_kWh_per_usd": 0.12
+    },
+    {
+      "id": "claude-opus-4-7-thinking-xhigh",
+      "provider_id": "anthropic",
+      "match_prefixes": ["claude-opus-4-7-thinking-xhigh"],
+      "input": 5e-6,
+      "output": 2.5e-5,
+      "cache_read": 5e-7,
+      "cache_write": 6.25e-6,
+      "mu_kWh_per_usd": 0.13,
+      "sigma_kWh_per_usd": 0.11
+    }
+  ]
+}

@@ -1,0 +1,285 @@
+{
+  "providers": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "mu_L_per_kWh": 4.35,
+      "sigma_L_per_kWh": 1.2,
+      "mu_kg_per_kWh": 0.35,
+      "sigma_kg_per_kWh": 0.08
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "mu_L_per_kWh": 5.11,
+      "sigma_L_per_kWh": 1.5,
+      "mu_kg_per_kWh": 0.38,
+      "sigma_kg_per_kWh": 0.09
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "mu_L_per_kWh": 0.84,
+      "sigma_L_per_kWh": 0.25,
+      "mu_kg_per_kWh": 0.30,
+      "sigma_kg_per_kWh": 0.07
+    },
+    {
+      "id": "spacexai",
+      "name": "SpaceXAI",
+      "mu_L_per_kWh": 3.8,
+      "sigma_L_per_kWh": 1.1,
+      "mu_kg_per_kWh": 0.42,
+      "sigma_kg_per_kWh": 0.10
+    }
+  ],
+  "models": [
+    {
+      "id": "auto",
+      "provider_id": "spacexai",
+      "match_prefixes": [
+        "auto"
+      ],
+      "input": 0.0000015,
+      "output": 0.000006,
+      "cache_read": 0.00000015,
+      "cache_write": 0.000001875,
+      "mu_kWh_per_usd": 0.18,
+      "sigma_kWh_per_usd": 0.04
+    },
+    {
+      "id": "cursor-grok-4.6",
+      "provider_id": "spacexai",
+      "match_prefixes": [
+        "cursor-grok-4.6"
+      ],
+      "input": 0.000002,
+      "output": 0.000008,
+      "cache_read": 0.0000002,
+      "cache_write": 0.0000025,
+      "mu_kWh_per_usd": 0.16,
+      "sigma_kWh_per_usd": 0.035
+    },
+    {
+      "id": "grok-4.7",
+      "provider_id": "spacexai",
+      "match_prefixes": [
+        "grok-4.7"
+      ],
+      "input": 0.0000025,
+      "output": 0.00001,
+      "cache_read": 0.00000025,
+      "cache_write": 0.000003125,
+      "mu_kWh_per_usd": 0.15,
+      "sigma_kWh_per_usd": 0.03
+    },
+    {
+      "id": "composer-2.5",
+      "provider_id": "spacexai",
+      "match_prefixes": [
+        "composer-2.5"
+      ],
+      "input": 0.000003,
+      "output": 0.000012,
+      "cache_read": 0.0000003,
+      "cache_write": 0.00000375,
+      "mu_kWh_per_usd": 0.14,
+      "sigma_kWh_per_usd": 0.028
+    },
+    {
+      "id": "composer-2.5-fast",
+      "provider_id": "spacexai",
+      "match_prefixes": [
+        "composer-2.5-fast"
+      ],
+      "input": 0.0000018,
+      "output": 0.0000072,
+      "cache_read": 0.00000018,
+      "cache_write": 0.00000225,
+      "mu_kWh_per_usd": 0.17,
+      "sigma_kWh_per_usd": 0.038
+    },
+    {
+      "id": "grok-bot-default",
+      "provider_id": "spacexai",
+      "match_prefixes": [
+        "grok-bot-default"
+      ],
+      "input": 0.0000022,
+      "output": 0.0000088,
+      "cache_read": 0.00000022,
+      "cache_write": 0.00000275,
+      "mu_kWh_per_usd": 0.155,
+      "sigma_kWh_per_usd": 0.032
+    },
+    {
+      "id": "claude-opus-5",
+      "provider_id": "anthropic",
+      "match_prefixes": [
+        "claude-opus-5"
+      ],
+      "input": 0.000005,
+      "output": 0.000025,
+      "cache_read": 0.0000005,
+      "cache_write": 0.00000625,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.025
+    },
+    {
+      "id": "claude-4.6-sonnet",
+      "provider_id": "anthropic",
+      "match_prefixes": [
+        "claude-4.6-sonnet"
+      ],
+      "input": 0.000003,
+      "output": 0.000015,
+      "cache_read": 0.0000003,
+      "cache_write": 0.00000375,
+      "mu_kWh_per_usd": 0.135,
+      "sigma_kWh_per_usd": 0.028
+    },
+    {
+      "id": "claude-4.6-opus",
+      "provider_id": "anthropic",
+      "match_prefixes": [
+        "claude-4.6-opus"
+      ],
+      "input": 0.000005,
+      "output": 0.000025,
+      "cache_read": 0.0000005,
+      "cache_write": 0.00000625,
+      "mu_kWh_per_usd": 0.12,
+      "sigma_kWh_per_usd": 0.025
+    },
+    {
+      "id": "claude-4.5-haiku",
+      "provider_id": "anthropic",
+      "match_prefixes": [
+        "claude-4.5-haiku"
+      ],
+      "input": 0.000001,
+      "output": 0.000005,
+      "cache_read": 0.0000001,
+      "cache_write": 0.00000125,
+      "mu_kWh_per_usd": 0.19,
+      "sigma_kWh_per_usd": 0.042
+    },
+    {
+      "id": "claude-4.5-haiku-thinking",
+      "provider_id": "anthropic",
+      "match_prefixes": [
+        "claude-4.5-haiku-thinking"
+      ],
+      "input": 0.000001,
+      "output": 0.000005,
+      "cache_read": 0.0000001,
+      "cache_write": 0.00000125,
+      "mu_kWh_per_usd": 0.185,
+      "sigma_kWh_per_usd": 0.04
+    },
+    {
+      "id": "claude-opus-4-7-thinking-xhigh",
+      "provider_id": "anthropic",
+      "match_prefixes": [
+        "claude-opus-4-7-thinking-xhigh"
+      ],
+      "input": 0.000005,
+      "output": 0.000025,
+      "cache_read": 0.0000005,
+      "cache_write": 0.00000625,
+      "mu_kWh_per_usd": 0.115,
+      "sigma_kWh_per_usd": 0.024
+    },
+    {
+      "id": "gemini-3.1-pro",
+      "provider_id": "google",
+      "match_prefixes": [
+        "gemini-3.1-pro"
+      ],
+      "input": 0.00000125,
+      "output": 0.000005,
+      "cache_read": 0.000000125,
+      "cache_write": 0.0000015625,
+      "mu_kWh_per_usd": 0.22,
+      "sigma_kWh_per_usd": 0.048
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "provider_id": "google",
+      "match_prefixes": [
+        "gemini-3.8-flash"
+      ],
+      "input": 0.00000075,
+      "output": 0.00000375,
+      "cache_read": 0.000000075,
+      "cache_write": 0.0000009375,
+      "mu_kWh_per_usd": 0.24,
+      "sigma_kWh_per_usd": 0.052
+    },
+    {
+      "id": "gemini-3-flash",
+      "provider_id": "google",
+      "match_prefixes": [
+        "gemini-3-flash"
+      ],
+      "input": 0.0000003,
+      "output": 0.0000012,
+      "cache_read": 0.00000003,
+      "cache_write": 0.000000375,
+      "mu_kWh_per_usd": 0.28,
+      "sigma_kWh_per_usd": 0.06
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "provider_id": "google",
+      "match_prefixes": [
+        "gemini-3-flash-preview"
+      ],
+      "input": 0.00000035,
+      "output": 0.0000014,
+      "cache_read": 0.000000035,
+      "cache_write": 0.0000004375,
+      "mu_kWh_per_usd": 0.27,
+      "sigma_kWh_per_usd": 0.058
+    },
+    {
+      "id": "gpt-5.6-luna-high",
+      "provider_id": "openai",
+      "match_prefixes": [
+        "gpt-5.6-luna-high"
+      ],
+      "input": 0.0000002,
+      "output": 0.0000012,
+      "cache_read": 0.00000002,
+      "cache_write": 0.00000025,
+      "mu_kWh_per_usd": 0.25,
+      "sigma_kWh_per_usd": 0.055
+    },
+    {
+      "id": "gpt-5.6-luna-none",
+      "provider_id": "openai",
+      "match_prefixes": [
+        "gpt-5.6-luna-none"
+      ],
+      "input": 0.0000002,
+      "output": 0.0000012,
+      "cache_read": 0.00000002,
+      "cache_write": 0.00000025,
+      "mu_kWh_per_usd": 0.25,
+      "sigma_kWh_per_usd": 0.055
+    },
+    {
+      "id": "gpt-5.6-sol-high",
+      "provider_id": "openai",
+      "match_prefixes": [
+        "gpt-5.6-sol-high"
+      ],
+      "input": 0.000004,
+      "output": 0.00002,
+      "cache_read": 0.0000004,
+      "cache_write": 0.000005,
+      "mu_kWh_per_usd": 0.13,
+      "sigma_kWh_per_usd": 0.027
+    }
+  ]
+}
