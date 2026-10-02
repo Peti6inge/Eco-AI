@@ -32,7 +32,7 @@ Mapping métier (bug d’export Cursor, figé) :
 
 Colonne `Cost` ignorée. Une colonne manquante, inconnue, ou un champ tokens non entier → erreur, pas d’estimation partielle.
 
-Les modèles CSV sont rattachés au **préfixe configuré le plus long**. Les modèles hors seed (souvent Gemini / GPT dans un export réel) apparaissent dans la liste d’omis s’ils pèsent ≥ 1 % des tokens.
+Les modèles CSV sont rattachés au **préfixe configuré le plus long**. Les modèles hors seed (souvent des variantes GPT non listées) apparaissent dans la liste d’omis s’ils pèsent ≥ 1 % des tokens.
 
 ## Paramètres
 
