@@ -235,6 +235,7 @@ function drawChart(data) {
     y1: 1,
     line: { color: ["#5b8def", "#e8eaed", "#5b8def"][i], width: i === 1 ? 1.5 : 1, dash: i === 1 ? "solid" : "dash" },
   }));
+  Plotly.purge("chart");
   Plotly.newPlot(
     "chart",
     [cdf, gauss],
