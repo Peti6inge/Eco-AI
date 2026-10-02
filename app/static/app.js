@@ -1,5 +1,9 @@
+const PACK_KEY = "eco-ai-pack";
+
 const state = {
   metric: "co2",
+  pack: null,
+  packs: [],
   settings: null,
   file: null,
   dateBounds: { min: null, max: null },
@@ -18,9 +22,59 @@ function showError(msg) {
   el.textContent = msg;
 }
 
-async function loadSettings() {
-  const res = await fetch("/api/settings");
-  state.settings = await res.json();
+function rememberedPack() {
+  try {
+    return localStorage.getItem(PACK_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function rememberPack(pack) {
+  try {
+    localStorage.setItem(PACK_KEY, pack);
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+function fillPackSelects() {
+  for (const id of ["pack", "pack-params"]) {
+    const sel = $(id);
+    const current = sel.value;
+    sel.innerHTML = "";
+    for (const pack of state.packs) {
+      const opt = document.createElement("option");
+      opt.value = pack;
+      opt.textContent = pack;
+      sel.appendChild(opt);
+    }
+    sel.value = state.pack && state.packs.includes(state.pack)
+      ? state.pack
+      : current && state.packs.includes(current)
+        ? current
+        : state.packs[0] || "";
+  }
+}
+
+async function loadSettings(pack) {
+  const wanted = pack || rememberedPack() || "";
+  const url = wanted ? `/api/settings?pack=${encodeURIComponent(wanted)}` : "/api/settings";
+  let res = await fetch(url);
+  let body = await res.json();
+  if (!res.ok && wanted) {
+    res = await fetch("/api/settings");
+    body = await res.json();
+  }
+  if (!res.ok) {
+    showError(typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail));
+    return;
+  }
+  state.pack = body.pack;
+  state.packs = body.packs;
+  state.settings = body.settings;
+  rememberPack(state.pack);
+  fillPackSelects();
   renderModelPicks();
   renderSettingsEditor();
 }
@@ -145,7 +199,7 @@ function renderSettingsEditor() {
 
 async function saveSettings() {
   const payload = readEditor();
-  const res = await fetch("/api/settings", {
+  const res = await fetch(`/api/settings?pack=${encodeURIComponent(state.pack)}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -155,10 +209,14 @@ async function saveSettings() {
     $("save-status").textContent = body.detail ? JSON.stringify(body.detail) : "Erreur";
     return;
   }
-  state.settings = body;
+  state.pack = body.pack;
+  state.packs = body.packs;
+  state.settings = body.settings;
   $("save-status").textContent = "Enregistré.";
+  fillPackSelects();
   renderModelPicks();
   renderSettingsEditor();
+  if (state.file) analyze();
 }
 
 function isoDateValue(id) {
@@ -183,6 +241,7 @@ async function analyze() {
   if (from) fd.append("date_from", from);
   if (to) fd.append("date_to", to);
   fd.append("model_ids", selectedModelIds().join(","));
+  if (state.pack) fd.append("pack", state.pack);
   const res = await fetch("/api/analyze", { method: "POST", body: fd });
   const data = await res.json();
   if (!res.ok) {
@@ -191,25 +250,75 @@ async function analyze() {
     $("coverage").textContent = "";
     $("omitted").innerHTML = "";
     $("quartiles").textContent = "";
+    renderComparison(null);
     return;
   }
   if (data.date_min && !$("date-from").value) $("date-from").value = data.date_min;
   if (data.date_max && !$("date-to").value) $("date-to").value = data.date_max;
-  const pct = data.coverage_pct.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
-  $("coverage").textContent = `Tokens comptabilisés dans l'analyse : ${pct}%`;
+  $("coverage").textContent = `Tokens comptabilisés dans l'analyse : ${formatSig2(data.coverage_pct)}%`;
   const ul = $("omitted");
   ul.innerHTML = "";
   for (const item of data.omitted) {
     const li = document.createElement("li");
-    li.textContent = `${item.model} — ${item.tokens.toLocaleString("fr-FR")} tokens (sans paramètre)`;
+    li.textContent = `${item.model} — ${formatSig2(item.tokens)} tokens (sans paramètre)`;
     ul.appendChild(li);
   }
   const q = data.quartiles;
-  const fmt = (x) => x.toLocaleString("fr-FR", { maximumFractionDigits: 4 });
   $("quartiles").textContent =
-    `Q1 ${fmt(q.q1)} · médiane ${fmt(q.median)} · Q3 ${fmt(q.q3)} ${data.unit}` +
-    ` · coût configuré ${fmt(data.total_cost_usd)} $ · ${data.n_draws} tirages`;
+    `Q1 ${formatSig2(q.q1)} · médiane ${formatSig2(q.median)} · Q3 ${formatSig2(q.q3)} ${data.unit}` +
+    ` · coût configuré ${formatSig2(data.total_cost_usd)} $ · ${formatSig2(data.n_draws)} tirages`;
+  renderComparison(data.comparison, data.pack);
   drawChart(data);
+}
+
+function formatSig2(value) {
+  if (!Number.isFinite(value)) return "—";
+  if (value === 0) return "0";
+  const sign = value < 0 ? "-" : "";
+  const abs = Math.abs(value);
+  const exp = Math.floor(Math.log10(abs));
+  const scale = 10 ** (exp - 1);
+  let rounded = Math.round(abs / scale) * scale;
+  if (rounded === 0) return "0";
+  const exp2 = Math.floor(Math.log10(rounded));
+  const decimals = Math.max(0, 1 - exp2);
+  const factor = 10 ** decimals;
+  rounded = Math.round(rounded * factor) / factor;
+  return sign + rounded.toLocaleString("fr-FR", {
+    maximumFractionDigits: decimals,
+    minimumFractionDigits: 0,
+  });
+}
+
+function renderComparison(rows, selectedPack) {
+  const panel = $("compare-panel");
+  const tbody = document.querySelector("#compare-table tbody");
+  tbody.innerHTML = "";
+  if (!rows || !rows.length) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  for (const row of rows) {
+    const tr = document.createElement("tr");
+    if (row.pack === selectedPack) tr.className = "selected";
+    const cells = [
+      row.pack,
+      formatSig2(row.co2.q1),
+      formatSig2(row.co2.median),
+      formatSig2(row.co2.q3),
+      formatSig2(row.water.q1),
+      formatSig2(row.water.median),
+      formatSig2(row.water.q3),
+    ];
+    cells.forEach((text, i) => {
+      const td = document.createElement(i === 0 ? "th" : "td");
+      td.textContent = text;
+      if (i === 0) td.scope = "row";
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
 }
 
 function drawChart(data) {
@@ -244,8 +353,8 @@ function drawChart(data) {
       plot_bgcolor: "#0e1116",
       font: { color: "#e8eaed" },
       margin: { t: 24, r: 16, b: 48, l: 48 },
-      xaxis: { title: data.unit, gridcolor: "#2a3140" },
-      yaxis: { title: "P(F ≤ x)", range: [0, 1], gridcolor: "#2a3140" },
+      xaxis: { title: data.unit, gridcolor: "#2a3140", hoverformat: ".2r", tickformat: ".2r" },
+      yaxis: { title: "P(F ≤ x)", range: [0, 1], gridcolor: "#2a3140", hoverformat: ".2r" },
       legend: { orientation: "h" },
       shapes,
       annotations: [
@@ -269,6 +378,17 @@ $("csv").addEventListener("change", (ev) => {
 $("run").addEventListener("click", analyze);
 $("date-from").addEventListener("change", () => state.file && analyze());
 $("date-to").addEventListener("change", () => state.file && analyze());
+
+async function onPackChange(ev) {
+  const pack = ev.target.value;
+  if (!pack || pack === state.pack) return;
+  $("save-status").textContent = "";
+  await loadSettings(pack);
+  if (state.file) analyze();
+}
+
+$("pack").addEventListener("change", onPackChange);
+$("pack-params").addEventListener("change", onPackChange);
 
 for (const btn of document.querySelectorAll(".toggle button")) {
   btn.addEventListener("click", () => {

@@ -91,6 +91,7 @@ def estimate(
     date_max: date | None = None,
     n_draws: int = N_DRAWS,
     rng: np.random.Generator | None = None,
+    include_distribution: bool = True,
 ) -> EstimateResult:
     models = settings.models
     providers = settings.provider_by_id()
@@ -142,24 +143,29 @@ def estimate(
         footprint += usd * energy * intensity[model.provider_id]
 
     q1, median, q3 = np.percentile(footprint, [25, 50, 75])
-    order = np.argsort(footprint)
-    sorted_f = footprint[order]
-    idx = np.unique(np.linspace(0, n_draws - 1, CDF_POINTS, dtype=int))
-    cdf_x = sorted_f[idx].tolist()
-    cdf_y = ((idx + 1) / n_draws).tolist()
-
     mean = float(footprint.mean())
     std = float(footprint.std(ddof=0))
-    gx = np.linspace(float(sorted_f[0]), float(sorted_f[-1]), 400)
-    gy = _norm_cdf(gx, mean, std)
+    if include_distribution:
+        order = np.argsort(footprint)
+        sorted_f = footprint[order]
+        idx = np.unique(np.linspace(0, n_draws - 1, CDF_POINTS, dtype=int))
+        cdf_x = sorted_f[idx].tolist()
+        cdf_y = ((idx + 1) / n_draws).tolist()
+        gx = np.linspace(float(sorted_f[0]), float(sorted_f[-1]), 400)
+        gy = _norm_cdf(gx, mean, std)
+        cdf = {"x": cdf_x, "y": cdf_y}
+        gaussian_overlay = {"x": gx.tolist(), "y": gy.tolist()}
+    else:
+        cdf = {"x": [], "y": []}
+        gaussian_overlay = {"x": [], "y": []}
 
     unit = "kg CO₂" if metric == "co2" else "L eau"
     return EstimateResult(
         coverage_pct=coverage_pct,
         omitted=omitted,
         quartiles={"q1": float(q1), "median": float(median), "q3": float(q3)},
-        cdf={"x": cdf_x, "y": cdf_y},
-        gaussian_overlay={"x": gx.tolist(), "y": gy.tolist()},
+        cdf=cdf,
+        gaussian_overlay=gaussian_overlay,
         unit=unit,
         n_draws=n_draws,
         date_min=date_min,

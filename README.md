@@ -36,7 +36,7 @@ Les modèles CSV sont rattachés au **préfixe configuré le plus long**. Les mo
 
 ## Paramètres
 
-Au premier lancement, `defaults/settings.json` est copié vers `data/settings.json`. Les priors numériques et leurs sources sont dans [`defaults/SOURCES.md`](defaults/SOURCES.md).
+Les jeux de paramètres sont les fichiers `data/settings/*.json`. Au premier lancement, si le répertoire est vide, `defaults/settings.json` est copié vers `data/settings/cursor.json`. Les priors numériques et leurs sources sont dans [`defaults/SOURCES.md`](defaults/SOURCES.md).
 
 ## Tests
 

@@ -31,6 +31,10 @@
           Au
           <input id="date-to" type="date" />
         </label>
+        <label>
+          Jeu de paramètres
+          <select id="pack"></select>
+        </label>
         <button type="button" id="run" disabled>Analyser</button>
       </section>
 
@@ -43,14 +47,44 @@
       <p id="coverage" class="coverage"></p>
       <ul id="omitted" class="omitted"></ul>
       <p id="quartiles" class="quartiles"></p>
+      <section class="panel compare" id="compare-panel" hidden>
+        <h2>Comparaison des jeux</h2>
+        <p class="hint">
+          Même CSV et même période, tous les fichiers de <code>data/settings</code>.
+        </p>
+        <div class="table-wrap">
+          <table id="compare-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Jeu</th>
+                <th colspan="3">CO₂ (kg)</th>
+                <th colspan="3">Eau (L)</th>
+              </tr>
+              <tr>
+                <th>Q1</th>
+                <th>Médiane</th>
+                <th>Q3</th>
+                <th>Q1</th>
+                <th>Médiane</th>
+                <th>Q3</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
       <div id="chart"></div>
 
       <details class="panel params">
         <summary>Paramètres</summary>
         <p class="hint">
-          Priors documentés dans <code>defaults/SOURCES.md</code>. Enregistrement dans
-          <code>data/settings.json</code>.
+          Priors documentés dans <code>defaults/SOURCES.md</code>. Chaque fichier
+          <code>data/settings/*.json</code> est un jeu sélectionnable pour la simulation.
         </p>
+        <label>
+          Jeu édité
+          <select id="pack-params"></select>
+        </label>
         <h3>Fournisseurs</h3>
         <div id="providers"></div>
         <button type="button" id="add-provider">Ajouter un fournisseur</button>
